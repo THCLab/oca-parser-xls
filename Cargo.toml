@@ -1,8 +1,10 @@
 [package]
 name = "oca-parser-xls"
+description = "Command line tool for parsing XLS file into OCA"
 version = "1.0.0"
 edition = "2021"
 license = "EUPL-1.2"
+repository = "https://github.com/THCLab/oca-parser-xls"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
