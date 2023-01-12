@@ -1,5 +1,5 @@
 [Rust Build Status]: https://github.com/THCLab/oca-parser-xls/actions/workflows/rust.yml/badge.svg?branch=main
-[Rust actions]: https://github.com/THCLab/oca-rust/actions/workflows/rust.yml
+[Rust actions]: https://github.com/THCLab/oca-parser-xls/actions/workflows/rust.yml
 
 [parser.bin release]: https://github.com/THCLab/oca-parser-xls/releases/latest/download/parser.bin
 [parser.exe release]: https://github.com/THCLab/oca-parser-xls/releases/latest/download/parser.exe

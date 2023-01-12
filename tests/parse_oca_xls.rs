@@ -1,5 +1,5 @@
 use oca_parser_xls::xls_parser::oca::parse;
-use oca_rust::state::validator::Validator;
+use oca_rs::state::validator::Validator;
 
 #[test]
 fn parse_oca_xls() {

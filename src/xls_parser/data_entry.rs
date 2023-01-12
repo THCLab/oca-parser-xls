@@ -1,4 +1,4 @@
-use oca_rust::state::{entries::EntriesElement, entry_codes::EntryCodes, oca::overlay, oca::OCA};
+use oca_rs::state::{entries::EntriesElement, entry_codes::EntryCodes, oca::overlay, oca::OCA};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryInto;
 use std::iter::FromIterator;

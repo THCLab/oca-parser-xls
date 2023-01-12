@@ -1,5 +1,5 @@
 use calamine::{open_workbook_auto, DataType, Range, Reader};
-use oca_rust::state::{
+use oca_rs::state::{
     attribute::{AttributeBuilder, AttributeType, Entries, Entry},
     encoding::Encoding,
     entries::EntriesElement,

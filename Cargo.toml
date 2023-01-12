@@ -14,7 +14,7 @@ name = "parser"
 [dependencies]
 calamine = "0.18.0"
 clap = "3.2.18"
-oca-rust = "0.2.23"
+oca-rs = "0.2.25"
 said = "0.1.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

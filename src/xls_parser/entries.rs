@@ -1,5 +1,5 @@
 use calamine::{open_workbook_auto, DataType, Reader};
-use oca_rust::state::language::Language;
+use oca_rs::state::language::Language;
 use serde::Serialize;
 use std::collections::{BTreeMap, HashMap};
 
@@ -11,7 +11,7 @@ pub struct ParsedResult {
 
 const ENTRY_CODE_INDEX: u32 = 0;
 const ENTRY_LABEL_INDEX: u32 = 1;
-const SAMPLE_TEMPLATE_MSG: &str = "Sample file template can be found here: https://github.com/THCLab/oca-rust/blob/main/tests/assets/entries_template.xlsx";
+const SAMPLE_TEMPLATE_MSG: &str = "Sample file template can be found here: https://github.com/THCLab/oca-rs/blob/main/tests/assets/entries_template.xlsx";
 
 pub fn parse(path: String) -> Result<ParsedResult, String> {
     let mut workbook = open_workbook_auto(path).or(Err(

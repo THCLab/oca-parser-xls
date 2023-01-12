@@ -517,7 +517,7 @@ version = "1.0.0"
 dependencies = [
  "calamine",
  "clap 3.2.23",
- "oca-rust",
+ "oca-rs",
  "said",
  "serde",
  "serde_json",
@@ -527,10 +527,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "oca-rust"
-version = "0.2.23"
+name = "oca-rs"
+version = "0.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "acd8ed42d2acfb1be135d98d57691f3e55c88e5eff731a929dc90b27fdeb53a0"
+checksum = "aca1929789cc62224f5ee33d2e1273d8cac9122ebabcea30b42deae48d41f05e"
 dependencies = [
  "erased-serde",
  "indexmap",

@@ -2,7 +2,7 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 use clap::{Arg, Command};
 use oca_parser_xls::xls_parser::{self, entries::ParsedResult as ParsedEntries};
-use oca_rust::state::{oca::OCA, validator};
+use oca_rs::state::{oca::OCA, validator};
 use said::derivation::SelfAddressing;
 use std::io::prelude::*;
 
@@ -79,7 +79,7 @@ fn main() {
                             .long("path")
                             .required(true)
                             .takes_value(true)
-                            .help("Path to XLS(X) file. Sample XLS(X) file can be found here: https://github.com/THCLab/oca-rust/blob/main/tests/assets/entries_template.xlsx"),
+                            .help("Path to XLS(X) file. Sample XLS(X) file can be found here: https://github.com/THCLab/oca-rs/blob/main/tests/assets/entries_template.xlsx"),
                     )
                     .arg(
                         Arg::new("zip")
