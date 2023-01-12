@@ -16,6 +16,8 @@ pub struct ParsedResult {
     pub languages: Vec<Language>,
 }
 
+const SUPPORTED_TEMPLATES: &str = "^1.0.0";
+
 const SAMPLE_TEMPLATE_MSG: &str = "Template file can be found here: https://github.com/THCLab/oca-parser-xls/blob/main/templates/template.xlsx";
 
 pub fn parse(
@@ -72,6 +74,18 @@ pub fn parse(
         return Err(errors);
     }
     let main_sheet = workbook.worksheet_range(main_sheet_name).unwrap().unwrap();
+    let sheet_version = main_sheet.get_value((0, 0));
+    if let Some(DataType::String(version_value)) = sheet_version {
+        let version = semver::Version::parse(version_value).unwrap();
+        let req = semver::VersionReq::parse(self::SUPPORTED_TEMPLATES).unwrap();
+        if !req.matches(&version) {
+            errors.push(format!("Provided version of template ({}) is not supported. Please provide template matching {} version.", version_value, self::SUPPORTED_TEMPLATES));
+        }
+    }
+
+    if !errors.is_empty() {
+        return Err(errors);
+    }
     let translation_sheet_names = sheet_names.split_off(1);
     let mut translation_sheets: Vec<(Language, _)> = vec![];
 
@@ -143,7 +157,6 @@ pub fn parse(
         return Err(errors);
     }
 
-    let sheet_version = main_sheet.get_value((0, 0));
     let start: u32 = 3;
     let end_offset = if sheet_version.is_some() { 1 } else { 3 };
     let mut end: u32 = main_sheet.height() as u32;
