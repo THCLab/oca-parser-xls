@@ -23,7 +23,7 @@ fn main() {
                             .multiple_values(true)
                             .required(true)
                             .takes_value(true)
-                            .help("Path to XLS(X) file. Sample XLS(X) file can be found here: https://github.com/THCLab/oca-parser-xls/blob/main/templates/template.xlsx"),
+                            .help("Path to XLS(X) file. Sample XLS(X) file can be found here: https://github.com/THCLab/oca-parser-xls/raw/main/templates/template.xlsx"),
                     )
                     .arg(
                         Arg::new("default-form-layout")
