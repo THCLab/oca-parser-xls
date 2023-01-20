@@ -1,16 +1,12 @@
-## [Unreleased](https://github.com/THCLab/oca-parser-xls/compare/v1.0.0...main) (2023-01-14)
+## [1.1.0](https://github.com/THCLab/oca-parser-xls/compare/v1.0.0...v1.1.0) (2023-01-20)
 
 
-### Bug Fixes
+### Features
 
-* change link to template ([bf6d349](https://github.com/THCLab/oca-parser-xls/commit/bf6d349c066fbd65027d0c1a7298d23e906503e8))
-
-###
-
-* Change oca-rust to oca-rs ([cbcd4be](https://github.com/THCLab/oca-parser-xls/commit/cbcd4be))
-* Update README ([ae2bf71](https://github.com/THCLab/oca-parser-xls/commit/ae2bf71))
-* Validate XLS template version ([8cf270d](https://github.com/THCLab/oca-parser-xls/commit/8cf270d))
-
+* **template:** add `OL-ST: Standard` column to template ([092ea21](https://github.com/THCLab/oca-parser-xls/commit/092ea212e93ee3c01d1485c59df869cf772da3cd))
+* add parsing Standard overlay ([f2e2f3c](https://github.com/THCLab/oca-parser-xls/commit/f2e2f3c533175070f556f1865a7e00abffa4c222))
+* add OCA validation in parser ([e3bd1a3](https://github.com/THCLab/oca-parser-xls/commit/e3bd1a3756874527a14a065c3dfdb120af25414c))
+* add XLS template version validation ([8cf270d](https://github.com/THCLab/oca-parser-xls/commit/8cf270d))
 
 
 ## 1.0.0 (2023-01-11)
