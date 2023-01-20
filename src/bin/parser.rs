@@ -93,14 +93,14 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("parse") {
         if let Some(matches) = matches.subcommand_matches("oca") {
-            let _validation = !matches.is_present("no-validation");
+            let validation = !matches.is_present("no-validation");
             let to_be_zipped = matches.is_present("zip");
             let with_data_entry = matches.is_present("xls-data-entry");
             let paths: Vec<&str> = matches.values_of("path").unwrap().collect();
             let first_path = paths.first().unwrap().to_string();
             let mut parsed_oca_builder_list = vec![];
             let mut parsed_oca_list = vec![];
-            let errors: Vec<validator::Error> = vec![];
+            let mut errors: Vec<String> = vec![];
 
             for (i, p) in paths.iter().enumerate() {
                 let path = p.to_string();
@@ -156,20 +156,17 @@ fn main() {
             parsed_oca_list.push(root_oca_builder.finalize());
             parsed_oca_list.reverse();
 
-            /*
             if validation {
-                for oca in parsed_oca_list {
-                    let validator =
-                        validator::Validator::new().enforce_translations(parsed.languages.clone());
-                    let validation_result = validator.validate(&oca);
+                for oca in &parsed_oca_list {
+                    let validator = validator::Validator::new();
+                    let validation_result = validator.validate(oca);
                     if let Err(errs) = validation_result {
                         for e in errs {
-                            errors.push(e);
+                            errors.push(e.to_string());
                         }
                     }
                 }
             }
-            */
 
             if errors.is_empty() {
                 let filename = first_path

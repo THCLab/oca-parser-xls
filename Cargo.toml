@@ -14,7 +14,7 @@ name = "parser"
 [dependencies]
 calamine = "0.18.0"
 clap = "3.2.18"
-oca-rs = "0.2.25"
+oca-rs = "0.2.27"
 said = "0.1.2"
 semver = "1.0.16"
 serde = { version = "1.0", features = ["derive"] }

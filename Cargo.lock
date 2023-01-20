@@ -529,18 +529,20 @@ dependencies = [
 
 [[package]]
 name = "oca-rs"
-version = "0.2.25"
+version = "0.2.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aca1929789cc62224f5ee33d2e1273d8cac9122ebabcea30b42deae48d41f05e"
+checksum = "9076168a6e1c2b2766c883a56d113d752cb382c681487575bee923347f5bc17a"
 dependencies = [
  "erased-serde",
  "indexmap",
+ "lazy_static",
  "regex",
  "said",
  "serde",
  "serde-value",
  "serde_json",
  "serde_yaml",
+ "urn",
  "wasm-bindgen",
 ]
 
@@ -846,6 +848,12 @@ name = "unicode-width"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
+
+[[package]]
+name = "urn"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "67eaf234b821412d224e5853b50374f6250b5bad13016bc7897952a99c8d011e"
 
 [[package]]
 name = "vec_map"
