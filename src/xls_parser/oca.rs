@@ -302,6 +302,16 @@ pub fn parse(
                     attribute_builder.add_format(format_value.clone().trim().to_string());
             }
         }
+
+        if let Some(standard_index) = column_indicies.get("STANDARD_INDEX") {
+            if let Some(DataType::String(standard_value)) =
+                main_sheet.get_value((attr_index, *standard_index))
+            {
+                attribute_builder =
+                    attribute_builder.add_standard(standard_value.clone().trim().to_string());
+            }
+        }
+
         if let Some(entry_codes_index) = column_indicies.get("ENTRY_CODES_INDEX") {
             if let Some(DataType::String(entry_codes_value)) =
                 main_sheet.get_value((attr_index, *entry_codes_index))
@@ -694,7 +704,7 @@ mod tests {
             assert_eq!(parsed.languages.len(), 1);
             let oca = parsed.oca_builder.finalize();
             assert_eq!(oca.capture_base.attributes.len(), 3);
-            assert_eq!(oca.overlays.len(), 9);
+            assert_eq!(oca.overlays.len(), 10);
         }
     }
 
@@ -716,7 +726,7 @@ mod tests {
             assert_eq!(parsed.languages.len(), 1);
             let oca = parsed.oca_builder.finalize();
             assert_eq!(oca.capture_base.attributes.len(), 3);
-            assert_eq!(oca.overlays.len(), 9);
+            assert_eq!(oca.overlays.len(), 10);
         }
     }
 
