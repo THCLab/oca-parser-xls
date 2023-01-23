@@ -194,14 +194,23 @@ fn main() {
                 if to_be_zipped {
                     match zip_oca(parsed_oca_list, filename.clone()) {
                         Ok(_) => println!("OCA written to {}.zip", filename),
-                        Err(e) => println!("Error: {:?}", e),
+                        Err(e) => println!(
+                            "{}",
+                            serde_json::to_string_pretty(
+                                &serde_json::json!({ "errors": e.to_string() })
+                            )
+                            .unwrap()
+                        ),
                     }
                 } else {
                     let v = serde_json::to_value(&parsed_oca_list).unwrap();
                     println!("{}", v);
                 }
             } else {
-                println!("{:#?}", errors);
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&serde_json::json!({ "errors": errors })).unwrap()
+                );
             }
         }
 
@@ -210,7 +219,10 @@ fn main() {
             let result = xls_parser::entries::parse(path.clone());
 
             if let Err(e) = result {
-                println!("Error: {}", e);
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&serde_json::json!({ "errors": e })).unwrap()
+                );
                 return;
             }
 
@@ -230,7 +242,13 @@ fn main() {
                     .to_string();
                 match zip_entries(parsed, filename.clone()) {
                     Ok(_) => println!("Entries written to {}.zip", filename),
-                    Err(e) => println!("Error: {:?}", e),
+                    Err(e) => println!(
+                        "{}",
+                        serde_json::to_string_pretty(
+                            &serde_json::json!({ "errors": e.to_string() })
+                        )
+                        .unwrap()
+                    ),
                 }
             } else {
                 let v = serde_json::to_value(&parsed).unwrap();
