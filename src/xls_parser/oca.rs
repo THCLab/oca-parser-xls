@@ -60,13 +60,12 @@ pub fn parse(
         .retain(|n| n != "READ ME" && n != "README" && n != "Start Here" && n != "Documentation");
 
     let main_sheet_name = sheet_names.first().ok_or_else(|| {
-        errors.push(format!("Missing sheets. {}", SAMPLE_TEMPLATE_MSG));
+        errors.push(format!("Missing sheets. {SAMPLE_TEMPLATE_MSG}"));
         errors.clone()
     })?;
     if !(main_sheet_name.eq("Main") || main_sheet_name.eq("main")) {
         errors.push(format!(
-            "Provided XLS file does not match template. Missing Main sheet. {}",
-            SAMPLE_TEMPLATE_MSG
+            "Provided XLS file does not match template. Missing Main sheet. {SAMPLE_TEMPLATE_MSG}"
         ));
     }
 
@@ -245,7 +244,7 @@ pub fn parse(
                                 attribute_name,
                             ));
                         }
-                        attribute_sai = Some(format!(r#"{}"#, sai_value).trim().to_string());
+                        attribute_sai = Some(format!(r#"{sai_value}"#).trim().to_string());
                     }
                 }
                 None => return Err("Missing CB-RS: Reference SAI column".to_string()),
@@ -253,7 +252,7 @@ pub fn parse(
         }
         let mut attribute_builder = AttributeBuilder::new(
             attribute_name.clone(),
-            serde_json::from_str::<AttributeType>(format!("\"{}\"", attribute_type).as_str())
+            serde_json::from_str::<AttributeType>(format!("\"{attribute_type}\"").as_str())
                 .map_err(|e| {
                     format!(
                         "Parsing attribute type in row {} ({}) failed. {}",
@@ -636,8 +635,7 @@ pub fn parse(
                                     .find(|el| &el.id == e_key)
                                     .ok_or_else(|| {
                                         errors.push(format!(
-                                            "Unknown entry code in {} translation: {}",
-                                            lang, e_key
+                                            "Unknown entry code in {lang} translation: {e_key}"
                                         ));
                                         errors.clone()
                                     })?

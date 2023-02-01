@@ -8,11 +8,10 @@ pub fn generate(oca_list: &[OCA], filename: String) -> Result<(), Vec<String>> {
     let mut errors: Vec<String> = vec![];
     let oca = oca_list.get(0).unwrap();
 
-    let workbook =
-        Workbook::new(format!("{}-data_entry.xlsx", filename).as_str()).map_err(|e| {
-            errors.push(e.to_string());
-            errors.clone()
-        })?;
+    let workbook = Workbook::new(format!("{filename}-data_entry.xlsx").as_str()).map_err(|e| {
+        errors.push(e.to_string());
+        errors.clone()
+    })?;
     let format_header1 = workbook
         .add_format()
         .set_font_size(10.)
@@ -732,7 +731,7 @@ pub fn generate(oca_list: &[OCA], filename: String) -> Result<(), Vec<String>> {
                                 &Vec::from_iter::<Vec<String>>(
                                     entries_map
                                         .iter()
-                                        .map(|(k, v)| format!("{}:{}", k, v))
+                                        .map(|(k, v)| format!("{k}:{v}"))
                                         .collect(),
                                 )
                                 .join("|"),
@@ -884,7 +883,7 @@ pub fn generate(oca_list: &[OCA], filename: String) -> Result<(), Vec<String>> {
             DataValidationErrorType::Stop,
         );
         validation.dropdown = true;
-        validation.value_formula = Some(format!("'Schema Description'!$A${}:$A${}", start, end));
+        validation.value_formula = Some(format!("'Schema Description'!$A${start}:$A${end}"));
         let col_i = *attributes_index.get(attr_name.clone().as_str()).unwrap() - 1;
         let letter = char::from_u32(65 + col_i).unwrap();
         sheet2

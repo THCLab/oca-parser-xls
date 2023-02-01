@@ -33,10 +33,7 @@ pub fn parse(path: String) -> Result<ParsedResult, String> {
 
     let first_translation_sheet = &translation_sheets
         .first()
-        .ok_or(format!(
-            "Missing translation sheets. {}",
-            SAMPLE_TEMPLATE_MSG
-        ))?
+        .ok_or(format!("Missing translation sheets. {SAMPLE_TEMPLATE_MSG}"))?
         .1;
 
     let start: u32 = 3;
