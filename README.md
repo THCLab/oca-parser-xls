@@ -33,3 +33,7 @@ Building local package:
 ### Run [tests](tests)
 
 `cargo test`
+
+# Contributing
+
+See https://github.com/THCLab/contributing
