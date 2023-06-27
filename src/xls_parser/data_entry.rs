@@ -1,70 +1,80 @@
-use oca_rs::state::{entries::EntriesElement, entry_codes::EntryCodes, oca::overlay, oca::OCA};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use isolang::Language;
+use oca_bundle::state::{
+    entries::EntriesElement, entry_codes::EntryCodes, oca::overlay,
+    oca::OCABundle,
+};
+use std::collections::{HashMap, HashSet};
 use std::convert::TryInto;
 use std::iter::FromIterator;
-use xlsxwriter::*;
+use xlsxwriter::{prelude::*, worksheet::validation};
 
-pub fn generate(oca_list: &[OCA], filename: String) -> Result<(), Vec<String>> {
+pub fn generate(
+    oca_list: &[OCABundle],
+    filename: String,
+) -> Result<(), Vec<String>> {
     let mut errors: Vec<String> = vec![];
     let oca = oca_list.get(0).unwrap();
 
-    let workbook = Workbook::new(format!("{filename}-data_entry.xlsx").as_str()).map_err(|e| {
+    let workbook = Workbook::new(
+        format!("{filename}-data_entry.xlsx").as_str(),
+    )
+    .map_err(|e| {
         errors.push(e.to_string());
         errors.clone()
     })?;
-    let format_header1 = workbook
-        .add_format()
+    let mut format_header1 = Format::new();
+    format_header1
         .set_font_size(10.)
         .set_bold()
         .set_text_wrap()
-        .set_align(FormatAlignment::VerticalTop)
+        .set_vertical_align(FormatVerticalAlignment::VerticalTop)
         .set_border_bottom(FormatBorder::Thin);
-    let format_header2 = workbook
-        .add_format()
+    let mut format_header2 = Format::new();
+    format_header2
         .set_font_size(10.)
         .set_bold()
         .set_text_wrap()
-        .set_align(FormatAlignment::VerticalTop)
+        .set_vertical_align(FormatVerticalAlignment::VerticalTop)
         .set_border_bottom(FormatBorder::Thin)
         .set_border_right(FormatBorder::Thin);
-    let format_attr1 = workbook
-        .add_format()
+    let mut format_attr1 = Format::new();
+    format_attr1
         .set_font_size(10.)
         .set_text_wrap()
-        .set_align(FormatAlignment::VerticalTop);
-    let format_attr2 = workbook
-        .add_format()
+        .set_vertical_align(FormatVerticalAlignment::VerticalTop);
+    let mut format_attr2 = Format::new();
+    format_attr2
         .set_font_size(10.)
         .set_text_wrap()
-        .set_align(FormatAlignment::VerticalTop)
+        .set_vertical_align(FormatVerticalAlignment::VerticalTop)
         .set_border_right(FormatBorder::Thin);
 
-    let format_data_header = workbook
-        .add_format()
+    let mut format_data_header = Format::new();
+    format_data_header
         .set_font_size(10.)
         .set_bg_color(FormatColor::Custom(0xE7E6E6))
-        .set_align(FormatAlignment::VerticalTop)
+        .set_vertical_align(FormatVerticalAlignment::VerticalTop)
         .set_border_bottom(FormatBorder::Thin)
         .set_border_right(FormatBorder::Thin);
 
-    let format_lookup_header = workbook
-        .add_format()
+    let mut format_lookup_header = Format::new();
+    format_lookup_header
         .set_font_size(10.)
         .set_bold()
         .set_bg_color(FormatColor::Custom(0xE7E6E6))
         .set_text_wrap()
-        .set_align(FormatAlignment::VerticalTop);
-    let format_lookup_attr = workbook
-        .add_format()
+        .set_vertical_align(FormatVerticalAlignment::VerticalTop);
+    let mut format_lookup_attr = Format::new();
+    format_lookup_attr
         .set_font_size(10.)
         .set_bold()
         .set_text_wrap()
-        .set_align(FormatAlignment::VerticalTop);
-    let format_lookup_value = workbook
-        .add_format()
+        .set_vertical_align(FormatVerticalAlignment::VerticalTop);
+    let mut format_lookup_value = Format::new();
+    format_lookup_value
         .set_font_size(10.)
         .set_text_wrap()
-        .set_align(FormatAlignment::VerticalTop);
+        .set_vertical_align(FormatVerticalAlignment::VerticalTop);
 
     let mut sheet1 = workbook
         .add_worksheet(Some("Schema Description"))
@@ -225,11 +235,11 @@ pub fn generate(oca_list: &[OCA], filename: String) -> Result<(), Vec<String>> {
             errors.clone()
         })?;
 
-    let mut lang: Option<&String> = None;
+    let mut lang: Option<&Language> = None;
     let mut skipped: usize = 0;
-    let mut lookup_entries: HashMap<String, &BTreeMap<String, String>> = HashMap::new();
+    let mut lookup_entries: HashMap<String, &HashMap<String, String>> = HashMap::new();
 
-    let languages: Vec<Option<&String>> = oca
+    let languages: Vec<Option<&Language>> = oca
         .overlays
         .iter()
         .map(|o| o.language())
@@ -238,7 +248,7 @@ pub fn generate(oca_list: &[OCA], filename: String) -> Result<(), Vec<String>> {
         .collect();
     for language_option in languages {
         if let Some(l) = language_option {
-            if l.to_lowercase().starts_with("en") {
+            if l.eq(&Language::Eng) {
                 lang = language_option;
             }
         }
@@ -549,7 +559,8 @@ pub fn generate(oca_list: &[OCA], filename: String) -> Result<(), Vec<String>> {
                     })?;
 
                 if let "DateTime" = oca.capture_base.attributes.get(attr_name).unwrap().as_str() {
-                    let format_attr = workbook.add_format().set_num_format(format);
+                    let mut format_attr = Format::new();
+                    format_attr.set_num_format(format);
 
                     for r in 1..1001 {
                         let col_i = *attributes_index.get(attr_name.clone().as_str()).unwrap() - 1;
@@ -891,13 +902,18 @@ pub fn generate(oca_list: &[OCA], filename: String) -> Result<(), Vec<String>> {
     }
 
     for (attr_name, (start, end)) in &lookup_table {
-        let mut validation = DataValidation::new(
-            DataValidationType::ListFormula,
-            DataValidationCriteria::None,
-            DataValidationErrorType::Stop,
+        let validation = validation::DataValidation::new(
+            validation::DataValidationType::ListFormula {
+                ignore_blank: true,
+                formula: format!("'Schema Description'!$A${start}:$A${end}"),
+            },
+            None,
+            Some(validation::ErrorAlertOptions {
+                style: validation::DataValidationErrorType::Stop,
+                title: "".to_string(),
+                message: "".to_string(),
+            }),
         );
-        validation.dropdown = true;
-        validation.value_formula = Some(format!("'Schema Description'!$A${start}:$A${end}"));
         let col_i = *attributes_index.get(attr_name.clone().as_str()).unwrap() - 1;
         let letter = char::from_u32(65 + col_i).unwrap();
         sheet2

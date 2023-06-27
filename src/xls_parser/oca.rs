@@ -1,18 +1,29 @@
 use calamine::{open_workbook_auto, DataType, Range, Reader};
-use oca_rs::state::{
-    attribute::{AttributeBuilder, AttributeType, Entries, Entry},
+use isolang::Language;
+use oca_bundle::state::{
+    attribute::{Attribute, AttributeType},
     encoding::Encoding,
     entries::EntriesElement,
-    entry_codes::EntryCodes,
-    language::Language,
-    oca::OCABuilder,
+    entry_codes::EntryCodes as EntryCodesValue,
+    oca::overlay::cardinality::Cardinalitys,
+    oca::overlay::character_encoding::CharacterEncodings,
+    oca::overlay::conformance::Conformances,
+    oca::overlay::credential_layout::CredentialLayouts,
+    oca::overlay::entry::Entries,
+    oca::overlay::entry_code::EntryCodes,
+    oca::overlay::form_layout::FormLayouts,
+    oca::overlay::format::Formats,
+    oca::overlay::information::Information,
+    oca::overlay::label::Labels,
+    oca::overlay::meta::Metas,
+    oca::OCABox,
 };
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 
 pub struct ParsedResult {
-    pub oca_builder: OCABuilder,
+    pub oca: OCABox,
     pub languages: Vec<Language>,
 }
 
@@ -89,9 +100,10 @@ pub fn parse(
     let mut translation_sheets: Vec<(Language, _)> = vec![];
 
     for translation_sheet_name in translation_sheet_names {
-        languages.push(translation_sheet_name.clone());
+        languages.push(
+            Language::from_639_1(&translation_sheet_name.clone()).unwrap());
         translation_sheets.push((
-            translation_sheet_name.clone(),
+            Language::from_639_1(&translation_sheet_name.clone()).unwrap(),
             workbook
                 .worksheet_range(&translation_sheet_name.clone())
                 .unwrap()
@@ -170,17 +182,17 @@ pub fn parse(
     }
     let oca_range = (start, end);
 
-    let mut oca_builder = OCABuilder::new(Encoding::Utf8);
+    let mut oca = OCABox::new();
 
     if let Some(layout) = form_layout {
-        oca_builder = oca_builder.add_form_layout(layout);
+        oca.add_form_layout(layout);
     } else if default_form_layout {
-        oca_builder = oca_builder.add_default_form_layout();
+        // oca.add_default_form_layout();
     }
     if let Some(layout) = credential_layout {
-        oca_builder = oca_builder.add_credential_layout(layout);
+        oca.add_credential_layout(layout);
     } else if default_credential_layout {
-        oca_builder = oca_builder.add_default_credential_layout();
+        // oca = oca.add_default_credential_layout();
     }
 
     let mut classification = String::new();
@@ -190,15 +202,15 @@ pub fn parse(
             classification = class.to_string().trim().to_string();
         }
     }
-    oca_builder = oca_builder.add_classification(classification);
+    oca.add_classification(classification);
 
     // let mut attribute_names = vec![];
-    let mut attribute_builders: Vec<(u32, AttributeBuilder)> = vec![];
+    let mut attributes: Vec<(u32, Attribute)> = vec![];
     fn parse_row(
         attr_index: u32,
         main_sheet: &Range<DataType>,
         column_indicies: HashMap<&str, u32>,
-    ) -> Result<AttributeBuilder, String> {
+    ) -> Result<Attribute, String> {
         let attribute_name = main_sheet
             .get_value((attr_index, *column_indicies.get("ATTR_NAME_INDEX").unwrap()))
             .unwrap()
@@ -250,8 +262,8 @@ pub fn parse(
                 None => return Err("Missing CB-RS: Reference SAI column".to_string()),
             }
         }
-        let mut attribute_builder = AttributeBuilder::new(
-            attribute_name.clone(),
+        let mut attribute = Attribute::new(attribute_name.clone());
+        attribute.set_attribute_type(
             serde_json::from_str::<AttributeType>(format!("\"{attribute_type}\"").as_str())
                 .map_err(|e| {
                     format!(
@@ -267,13 +279,13 @@ pub fn parse(
             if sai_string.ends_with(']') {
                 sai_string.pop();
             }
-            attribute_builder = attribute_builder.add_sai(sai_string);
+            attribute.set_sai(sai_string);
         }
         if let Some(flagged_index) = column_indicies.get("FLAGGED_INDEX") {
             if let Some(DataType::String(_value)) =
                 main_sheet.get_value((attr_index, *flagged_index))
             {
-                attribute_builder = attribute_builder.set_flagged();
+                attribute.set_flagged();
             }
         }
         if let Some(encoding_index) = column_indicies.get("ENCODING_INDEX") {
@@ -289,7 +301,7 @@ pub fn parse(
                                 e
                             )
                         })?;
-                attribute_builder = attribute_builder.add_encoding(encoding);
+                attribute.set_encoding(encoding);
             }
         }
 
@@ -297,28 +309,28 @@ pub fn parse(
             if let Some(DataType::String(format_value)) =
                 main_sheet.get_value((attr_index, *format_index))
             {
-                attribute_builder =
-                    attribute_builder.add_format(format_value.clone().trim().to_string());
+                attribute.set_format(format_value.clone().trim().to_string());
             }
         }
 
+        /* TODO: Add standard
         if let Some(standard_index) = column_indicies.get("STANDARD_INDEX") {
             if let Some(DataType::String(standard_value)) =
                 main_sheet.get_value((attr_index, *standard_index))
             {
-                attribute_builder =
-                    attribute_builder.add_standard(standard_value.clone().trim().to_string());
+                attribute_builder.add_standard(standard_value.clone().trim().to_string());
             }
         }
+        */
 
         if let Some(entry_codes_index) = column_indicies.get("ENTRY_CODES_INDEX") {
             if let Some(DataType::String(entry_codes_value)) =
                 main_sheet.get_value((attr_index, *entry_codes_index))
             {
                 if entry_codes_value != &"[SAI]".to_string() {
-                    let entry_codes: EntryCodes = if entry_codes_value.starts_with("SAI:") {
+                    let entry_codes: EntryCodesValue = if entry_codes_value.starts_with("SAI:") {
                         let sai = entry_codes_value.strip_prefix("SAI:").unwrap();
-                        EntryCodes::Sai(sai.to_string())
+                        EntryCodesValue::Sai(sai.to_string())
                     } else {
                         let codes: Vec<String> = entry_codes_value
                             .trim()
@@ -328,13 +340,14 @@ pub fn parse(
                             .iter()
                             .map(|c| c.to_string().trim().to_string())
                             .collect();
-                        EntryCodes::Array(codes)
+                        EntryCodesValue::Array(codes)
                     };
-                    attribute_builder = attribute_builder.add_entry_codes(entry_codes);
+                    attribute.set_entry_codes(entry_codes);
                 }
             }
         }
 
+        /* TODO: Add condition
         if let Some(condition_index) = column_indicies.get("CONDITION_INDEX") {
             if let Some(DataType::String(condition_value)) =
                 main_sheet.get_value((attr_index, *condition_index))
@@ -356,13 +369,13 @@ pub fn parse(
                 }
             }
         }
+        */
 
         if let Some(cardinality_index) = column_indicies.get("CARDINALITY_INDEX") {
             if let Some(DataType::String(cardinality_value)) =
                 main_sheet.get_value((attr_index, *cardinality_index))
             {
-                attribute_builder = attribute_builder
-                    .add_cardinality(cardinality_value.to_string().trim().to_string());
+                attribute.set_cardinality(cardinality_value.to_string().trim().to_string());
             }
         }
 
@@ -370,11 +383,11 @@ pub fn parse(
             if let Some(DataType::String(conformance_value)) =
                 main_sheet.get_value((attr_index, *conformance_index))
             {
-                attribute_builder =
-                    attribute_builder.add_conformance(conformance_value.clone().trim().to_string());
+                attribute.set_conformance(conformance_value.clone().trim().to_string());
             }
         }
 
+        /* TODO: Add unit
         if let Some(unit_index) = column_indicies.get("UNIT_INDEX") {
             if let Some(DataType::String(unit_value)) =
                 main_sheet.get_value((attr_index, *unit_index))
@@ -398,7 +411,9 @@ pub fn parse(
                 attribute_builder = attribute_builder.add_unit(metric_system, unit);
             }
         }
+        */
 
+        /* TODO: Add mappings
         if let Some(attribute_mapping_index) = column_indicies.get("ATTRIBUTE_MAPPING_INDEX") {
             if let Some(DataType::String(mapping_value)) =
                 main_sheet.get_value((attr_index, *attribute_mapping_index))
@@ -424,19 +439,18 @@ pub fn parse(
                 );
             }
         }
-        Ok(attribute_builder)
+        */
+        Ok(attribute)
     }
 
     for attr_index in oca_range.0..oca_range.1 {
         match parse_row(attr_index, &main_sheet, column_indicies.clone()) {
-            Ok(attribute_builder) => attribute_builders.push((attr_index, attribute_builder)),
+            Ok(attribute) => attributes.push((attr_index, attribute)),
             Err(e) => errors.push(e),
         }
     }
 
-    let mut name_trans: HashMap<Language, String> = HashMap::new();
-    let mut description_trans: HashMap<Language, String> = HashMap::new();
-    let mut extra_trans: HashMap<String, HashMap<Language, String>> = HashMap::new();
+    let mut meta_trans: HashMap<String, HashMap<Language, String>> = HashMap::new();
 
     let mut label_trans: HashMap<u32, HashMap<Language, String>> = HashMap::new();
     let mut entries_trans: HashMap<u32, HashMap<Language, EntriesElement>> = HashMap::new();
@@ -479,20 +493,14 @@ pub fn parse(
                         if let Some(DataType::String(value_value)) =
                             sheet.get_value((attr_index, *value_index))
                         {
-                            if name_value.eq("name") {
-                                name_trans.insert(lang.to_string(), value_value.to_string());
-                            } else if name_value.eq("description") {
-                                description_trans.insert(lang.to_string(), value_value.to_string());
-                            } else {
-                                match extra_trans.get_mut(name_value) {
-                                    Some(e_trans) => {
-                                        e_trans.insert(lang.to_string(), value_value.to_string());
-                                    }
-                                    None => {
-                                        let mut e_trans = HashMap::new();
-                                        e_trans.insert(lang.to_string(), value_value.to_string());
-                                        extra_trans.insert(name_value.to_string(), e_trans);
-                                    }
+                            match meta_trans.get_mut(name_value) {
+                                Some(m_trans) => {
+                                    m_trans.insert(*lang, value_value.to_string());
+                                }
+                                None => {
+                                    let mut m_trans = HashMap::new();
+                                    m_trans.insert(*lang, value_value.to_string());
+                                    meta_trans.insert(name_value.to_string(), m_trans);
                                 }
                             }
                         }
@@ -509,12 +517,12 @@ pub fn parse(
                     match label_trans.get_mut(&attr_index) {
                         Some(attr_label_tr) => {
                             attr_label_tr
-                                .insert(lang.to_string(), label_value.clone().trim().to_string());
+                                .insert(*lang, label_value.clone().trim().to_string());
                         }
                         None => {
                             let mut attr_label_tr: HashMap<Language, String> = HashMap::new();
                             attr_label_tr
-                                .insert(lang.to_string(), label_value.clone().trim().to_string());
+                                .insert(*lang, label_value.clone().trim().to_string());
                             label_trans.insert(attr_index, attr_label_tr);
                         }
                     }
@@ -557,7 +565,7 @@ pub fn parse(
                             })?;
                         }
                         let entries_obj =
-                            entries_values.iter().fold(BTreeMap::new(), |mut acc, x| {
+                            entries_values.iter().fold(HashMap::new(), |mut acc, x| {
                                 let splitted = x.split(':').collect::<Vec<&str>>();
                                 acc.insert(
                                     splitted.first().unwrap().to_string().trim().to_string(),
@@ -570,13 +578,13 @@ pub fn parse(
                     match entries_trans.get_mut(&attr_index) {
                         Some(attr_entries_tr) => {
                             if attr_entries_tr.get(lang).is_none() {
-                                attr_entries_tr.insert(lang.to_string(), entries_el);
+                                attr_entries_tr.insert(*lang, entries_el);
                             }
                         }
                         None => {
                             let mut attr_entries_tr: HashMap<Language, EntriesElement> =
                                 HashMap::new();
-                            attr_entries_tr.insert(lang.to_string(), entries_el);
+                            attr_entries_tr.insert(*lang, entries_el);
                             entries_trans.insert(attr_index, attr_entries_tr);
                         }
                     }
@@ -590,14 +598,14 @@ pub fn parse(
                     match information_trans.get_mut(&attr_index) {
                         Some(attr_info_tr) => {
                             attr_info_tr.insert(
-                                lang.to_string(),
+                                *lang,
                                 information_value.clone().trim().to_string(),
                             );
                         }
                         None => {
                             let mut attr_info_tr: HashMap<Language, String> = HashMap::new();
                             attr_info_tr.insert(
-                                lang.to_string(),
+                                *lang,
                                 information_value.clone().trim().to_string(),
                             );
                             information_trans.insert(attr_index, attr_info_tr);
@@ -607,73 +615,34 @@ pub fn parse(
             }
         }
     }
-    for (i, mut attribute_builder) in attribute_builders {
+    for (i, mut attribute) in attributes {
         if let Some(label_tr) = label_trans.get(&i).cloned() {
-            attribute_builder = attribute_builder.add_label(label_tr);
+            for (lang, label) in label_tr {
+                attribute.set_label(lang, label);
+            }
         }
         if let Some(lang_entries_tr) = entries_trans.get(&i).cloned() {
-            let mut entries: Option<Entries> = None;
-            for (lang, entries_tr) in lang_entries_tr.iter() {
-                match entries_tr {
-                    EntriesElement::Sai(sai) => match entries {
-                        Some(Entries::Sai(ref mut lang_sai)) => {
-                            lang_sai.insert(lang.to_string(), sai.to_string());
-                        }
-                        Some(Entries::Object(_)) => {}
-                        None => {
-                            let mut lang_sai: HashMap<Language, String> = HashMap::new();
-                            lang_sai.insert(lang.to_string(), sai.to_string());
-                            entries = Some(Entries::Sai(lang_sai));
-                        }
-                    },
-                    EntriesElement::Object(entries_obj) => match entries {
-                        Some(Entries::Sai(_)) => {}
-                        Some(Entries::Object(ref mut entry_vec)) => {
-                            for (e_key, e_val) in entries_obj.iter() {
-                                let lang_entry = &mut entry_vec
-                                    .iter_mut()
-                                    .find(|el| &el.id == e_key)
-                                    .ok_or_else(|| {
-                                        errors.push(format!(
-                                            "Unknown entry code in {lang} translation: {e_key}"
-                                        ));
-                                        errors.clone()
-                                    })?
-                                    .translations;
-                                lang_entry.insert(lang.to_string(), e_val.clone());
-                            }
-                        }
-                        None => {
-                            let mut entry_vec: Vec<Entry> = vec![];
-                            for (e_key, e_val) in entries_obj.iter() {
-                                let mut lang_entry: HashMap<Language, String> = HashMap::new();
-                                lang_entry.insert(lang.to_string(), e_val.clone());
-                                entry_vec.push(Entry::new(e_key.to_string(), lang_entry))
-                            }
-                            entries = Some(Entries::Object(entry_vec));
-                        }
-                    },
-                }
-            }
-            if let Some(ent) = entries {
-                attribute_builder = attribute_builder.add_entries(ent);
+            for (lang, entries_tr) in lang_entries_tr {
+              attribute.set_entry(lang, entries_tr);
             }
         }
         if let Some(info_tr) = information_trans.get(&i).cloned() {
-            attribute_builder = attribute_builder.add_information(info_tr);
+            for (lang, info) in info_tr {
+                attribute.set_information(lang, info);
+            }
         }
-        oca_builder = oca_builder.add_attribute(attribute_builder.build());
+        oca.add_attribute(attribute);
     }
-    oca_builder = oca_builder.add_name(name_trans);
-    oca_builder = oca_builder.add_description(description_trans);
-    for (name, value_trans) in extra_trans {
-        oca_builder = oca_builder.add_meta(name, value_trans);
+    for (key, value_trans) in meta_trans {
+        for (lang, value) in value_trans {
+            oca.add_meta(lang, key.clone(), value.clone());
+        }
     }
     // let oca = oca_builder.finalize();
 
     if errors.is_empty() {
         Ok(ParsedResult {
-            oca_builder,
+            oca,
             languages,
         })
     } else {
@@ -692,17 +661,17 @@ mod tests {
                 "{}/tests/assets/oca_template.xlsx",
                 env!("CARGO_MANIFEST_DIR")
             ),
-            true,
+            false,
             None,
-            true,
+            false,
             None,
         );
         assert!(result.is_ok());
-        if let Ok(parsed) = result {
+        if let Ok(mut parsed) = result {
             assert_eq!(parsed.languages.len(), 1);
-            let oca = parsed.oca_builder.finalize();
-            assert_eq!(oca.capture_base.attributes.len(), 3);
-            assert_eq!(oca.overlays.len(), 10);
+            let oca_bundle = parsed.oca.generate_bundle();
+            assert_eq!(oca_bundle.capture_base.attributes.len(), 3);
+            assert_eq!(oca_bundle.overlays.len(), 7);
         }
     }
 
@@ -713,18 +682,18 @@ mod tests {
                 "{}/tests/assets/oca_template.xls",
                 env!("CARGO_MANIFEST_DIR")
             ),
-            true,
+            false,
             None,
-            true,
+            false,
             None,
         );
         assert!(result.is_ok());
 
-        if let Ok(parsed) = result {
+        if let Ok(mut parsed) = result {
             assert_eq!(parsed.languages.len(), 1);
-            let oca = parsed.oca_builder.finalize();
-            assert_eq!(oca.capture_base.attributes.len(), 3);
-            assert_eq!(oca.overlays.len(), 10);
+            let oca_bundle = parsed.oca.generate_bundle();
+            assert_eq!(oca_bundle.capture_base.attributes.len(), 3);
+            assert_eq!(oca_bundle.overlays.len(), 7);
         }
     }
 
@@ -735,9 +704,9 @@ mod tests {
                 "{}/tests/assets/invalid_format.txt",
                 env!("CARGO_MANIFEST_DIR")
             ),
-            true,
+            false,
             None,
-            true,
+            false,
             None,
         );
         assert!(result.is_err());

@@ -1,5 +1,5 @@
 use calamine::{open_workbook_auto, DataType, Reader};
-use oca_rs::state::language::Language;
+use isolang::Language;
 use serde::Serialize;
 use std::collections::{BTreeMap, HashMap};
 
@@ -23,7 +23,10 @@ pub fn parse(path: String) -> Result<ParsedResult, String> {
     let mut translation_sheets: Vec<(Language, _)> = vec![];
     for translation_sheet_name in sheet_names {
         translation_sheets.push((
-            translation_sheet_name.clone(),
+            Language::from_639_1(&translation_sheet_name).ok_or(format!(
+                "Invalid language code: {}",
+                translation_sheet_name
+            ))?,
             workbook
                 .worksheet_range(&translation_sheet_name.clone())
                 .unwrap()
@@ -47,11 +50,11 @@ pub fn parse(path: String) -> Result<ParsedResult, String> {
             {
                 match label_trans.get_mut(&entry_index) {
                     Some(entry_label_tr) => {
-                        entry_label_tr.insert(lang.to_string(), label_value.clone());
+                        entry_label_tr.insert(*lang, label_value.clone());
                     }
                     None => {
                         let mut entry_label_tr: HashMap<Language, String> = HashMap::new();
-                        entry_label_tr.insert(lang.to_string(), label_value.clone());
+                        entry_label_tr.insert(*lang, label_value.clone());
                         label_trans.insert(entry_index, entry_label_tr);
                     }
                 }
@@ -78,7 +81,7 @@ pub fn parse(path: String) -> Result<ParsedResult, String> {
                     None => {
                         let mut tr: BTreeMap<String, String> = BTreeMap::new();
                         tr.insert(entry_code.clone(), label.clone());
-                        translations.insert(lang.clone(), tr);
+                        translations.insert(*lang, tr);
                     }
                 }
             }
