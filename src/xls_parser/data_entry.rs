@@ -928,11 +928,13 @@ pub fn generate(oca_list: &[OCA], filename: String) -> Result<(), Vec<String>> {
         }
     }
 
+    /*
     let mut protection = Protection::new();
     protection.no_select_locked_cells = false;
     protection.no_select_unlocked_cells = false;
     sheet1.protect("oca", &protection);
     sheet3.protect("oca", &protection);
+    */
     workbook.close().map_err(|e| {
         errors.push(e.to_string());
         errors.clone()
