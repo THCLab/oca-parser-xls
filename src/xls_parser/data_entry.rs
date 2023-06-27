@@ -552,12 +552,26 @@ pub fn generate(oca_list: &[OCA], filename: String) -> Result<(), Vec<String>> {
                     let format_attr = workbook.add_format().set_num_format(format);
 
                     for r in 1..1001 {
+                        let col_i = *attributes_index.get(attr_name.clone().as_str()).unwrap() - 1;
                         sheet2
-                            .write_blank(
+                            .write_blank(r, col_i.try_into().unwrap(), Some(&format_attr))
+                            .map_err(|e| {
+                                errors.push(e.to_string());
+                                errors.clone()
+                            })?;
+                        let letter = char::from_u32(65 + col_i).unwrap();
+                        let formula = format!(
+                            "=IF(ISBLANK('Data Entry'!${}${}),\"\",'Data Entry'!${}${})",
+                            letter,
+                            r + 1,
+                            letter,
+                            r + 1
+                        );
+                        sheet3
+                            .write_formula(
                                 r,
-                                (*attributes_index.get(attr_name.clone().as_str()).unwrap() - 1)
-                                    .try_into()
-                                    .unwrap(),
+                                col_i.try_into().unwrap(),
+                                &formula,
                                 Some(&format_attr),
                             )
                             .map_err(|e| {
