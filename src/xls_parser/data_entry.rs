@@ -255,7 +255,7 @@ pub fn generate(
     }
 
     for (i, o) in oca.overlays.iter().enumerate() {
-        if o.overlay_type().contains("/character_encoding/") {
+        if o.overlay_type().eq(&overlay::OverlayType::CharacterEncoding) {
             sheet1
                 .set_column(
                     (i + 4 - skipped).try_into().unwrap(),
@@ -311,7 +311,7 @@ pub fn generate(
                         })?;
                 }
             }
-        } else if o.overlay_type().contains("/cardinality/") {
+        } else if o.overlay_type().eq(&overlay::OverlayType::Cardinality) {
             sheet1
                 .set_column(
                     (i + 4 - skipped).try_into().unwrap(),
@@ -361,7 +361,7 @@ pub fn generate(
                         errors.clone()
                     })?;
             }
-        } else if o.overlay_type().contains("/conformance/") {
+        } else if o.overlay_type().eq(&overlay::OverlayType::Conformance) {
             sheet1
                 .set_column(
                     (i + 4 - skipped).try_into().unwrap(),
@@ -411,7 +411,7 @@ pub fn generate(
                         errors.clone()
                     })?;
             }
-        } else if o.overlay_type().contains("/conditional/") {
+        } else if o.overlay_type().eq(&overlay::OverlayType::Conditional) {
             sheet1
                 .set_column(
                     (i + 4 - skipped).try_into().unwrap(),
@@ -508,7 +508,7 @@ pub fn generate(
             }
 
             skipped -= 1;
-        } else if o.overlay_type().contains("/format/") {
+        } else if o.overlay_type().eq(&overlay::OverlayType::Format) {
             sheet1
                 .set_column(
                     (i + 4 - skipped).try_into().unwrap(),
@@ -592,7 +592,7 @@ pub fn generate(
                     }
                 }
             }
-        } else if o.overlay_type().contains("/entry_code/") {
+        } else if o.overlay_type().eq(&overlay::OverlayType::EntryCode) {
             sheet1
                 .write_string(
                     0,
@@ -633,7 +633,7 @@ pub fn generate(
                         })?;
                 }
             }
-        } else if o.overlay_type().contains("/label/") {
+        } else if o.overlay_type().eq(&overlay::OverlayType::Label) {
             if lang.is_none() {
                 lang = o.language()
             }
@@ -704,7 +704,7 @@ pub fn generate(
             } else {
                 skipped += 1;
             }
-        } else if o.overlay_type().contains("/entry/") {
+        } else if o.overlay_type().eq(&overlay::OverlayType::Entry) {
             if lang.is_none() {
                 lang = o.language()
             }
@@ -771,7 +771,7 @@ pub fn generate(
             } else {
                 skipped += 1;
             }
-        } else if o.overlay_type().contains("/information/") {
+        } else if o.overlay_type().eq(&overlay::OverlayType::Information) {
             if lang.is_none() {
                 lang = o.language()
             }
