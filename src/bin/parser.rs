@@ -23,6 +23,14 @@ fn main() {
                             .takes_value(true)
                             .help("Path to XLS(X) file. Sample XLS(X) file can be found here: https://github.com/THCLab/oca-parser-xls/raw/main/templates/template.xlsx"),
                     )
+                    .arg(
+                        Arg::new("output")
+                            .short('o')
+                            .long("output")
+                            .required(false)
+                            .takes_value(true)
+                            .help("Output format (json, ocafile)"),
+                    )
                     /* .arg(
                         Arg::new("default-form-layout")
                             .long("default-form-layout")
@@ -82,6 +90,7 @@ fn main() {
             let validation = !matches.is_present("no-validation");
             let with_data_entry = matches.is_present("xls-data-entry");
             let paths: Vec<&str> = matches.values_of("path").unwrap().collect();
+            let output_format: &str = matches.value_of("output").unwrap_or("json");
             let first_path = paths.first().unwrap().to_string();
             let mut parsed_oca_list = vec![];
             let mut parsed_oca_bundles = vec![];
@@ -176,8 +185,22 @@ fn main() {
                     }
                 }
 
-                let v = serde_json::to_value(&parsed_oca_bundles).unwrap();
-                println!("{v}");
+                match output_format {
+                    "json" => {
+                        let v = serde_json::to_value(&parsed_oca_bundles).unwrap();
+                        println!("{v}");
+                    }
+                    "ocafile" => {
+                        for oca_bundle in &parsed_oca_bundles {
+                            let ast = oca_bundle.to_ast();
+                            let ocafile = oca_file::ocafile::generate_from_ast(&ast);
+                            println!("{ocafile}");
+                        }
+                    }
+                    _ => {
+                        println!("Invalid output format");
+                    }
+                }
             } else {
                 println!(
                     "{}",
