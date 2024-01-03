@@ -158,7 +158,7 @@ pub fn generate(
                 errors.clone()
             })?;
         sheet1
-            .write_string(attr_i, 2, attr_type, Some(&format_attr1))
+            .write_string(attr_i, 2, &serde_json::to_string(attr_type).unwrap(), Some(&format_attr1))
             .map_err(|e| {
                 errors.push(e.to_string());
                 errors.clone()
@@ -558,7 +558,7 @@ pub fn generate(
                         errors.clone()
                     })?;
 
-                if let "DateTime" = oca.capture_base.attributes.get(attr_name).unwrap().as_str() {
+                if let "DateTime" = serde_json::to_string(oca.capture_base.attributes.get(attr_name).unwrap()).unwrap().as_str() {
                     let mut format_attr = Format::new();
                     format_attr.set_num_format(format);
 

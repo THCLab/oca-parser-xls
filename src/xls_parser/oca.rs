@@ -1,7 +1,8 @@
 use calamine::{open_workbook_auto, DataType, Range, Reader};
 use isolang::Language;
+use oca_ast::ast::NestedAttrType;
 use oca_bundle::state::{
-    attribute::{Attribute, AttributeType},
+    attribute::Attribute,
     encoding::Encoding,
     entries::EntriesElement,
     entry_codes::EntryCodes as EntryCodesValue,
@@ -242,29 +243,9 @@ pub fn parse(
         )
         .trim()
         .to_string();
-        let mut attribute_sai: Option<String> = None;
-        if attribute_type.contains("Reference") {
-            match column_indicies.get("REFERENCE_SAI_INDEX") {
-                Some(reference_sai_index) => {
-                    if let Some(sai_value) =
-                        &main_sheet.get_value((attr_index, *reference_sai_index))
-                    {
-                        if let DataType::Empty = sai_value {
-                            return Err(format!(
-                                "Parsing attribute type in row {} ({}) failed. Missing reference SAI",
-                                attr_index + 1,
-                                attribute_name,
-                            ));
-                        }
-                        attribute_sai = Some(format!(r#"{sai_value}"#).trim().to_string());
-                    }
-                }
-                None => return Err("Missing CB-RS: Reference SAI column".to_string()),
-            }
-        }
         let mut attribute = Attribute::new(attribute_name.clone());
         attribute.set_attribute_type(
-            serde_json::from_str::<AttributeType>(format!("\"{attribute_type}\"").as_str())
+            serde_json::from_str::<NestedAttrType>(format!("\"{attribute_type}\"").as_str())
                 .map_err(|e| {
                     format!(
                         "Parsing attribute type in row {} ({}) failed. {}",
@@ -274,13 +255,6 @@ pub fn parse(
                     )
                 })?,
         );
-        if let Some(sai) = attribute_sai {
-            let mut sai_string = sai;
-            if sai_string.ends_with(']') {
-                sai_string.pop();
-            }
-            attribute.set_sai(sai_string);
-        }
         if let Some(flagged_index) = column_indicies.get("FLAGGED_INDEX") {
             if let Some(DataType::String(_value)) =
                 main_sheet.get_value((attr_index, *flagged_index))
