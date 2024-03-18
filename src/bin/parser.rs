@@ -203,8 +203,7 @@ fn main() {
                         ),
                     }
                 } else {
-                    let v = serde_json::to_value(&parsed_oca_list).unwrap();
-                    println!("{v}");
+                    println!("{}", serde_json::to_string(&parsed_oca_list).unwrap());
                 }
             } else {
                 println!(
