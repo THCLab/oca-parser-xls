@@ -1,7 +1,7 @@
 use calamine::{open_workbook_auto, DataType, Range, Reader};
 use isolang::Language;
-use oca_ast::ast::NestedAttrType;
-use oca_bundle::state::{
+use oca_ast_semantics::ast::NestedAttrType;
+use oca_bundle_semantics::state::{
     attribute::Attribute,
     encoding::Encoding,
     entries::EntriesElement,

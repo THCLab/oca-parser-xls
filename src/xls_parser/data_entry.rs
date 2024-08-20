@@ -1,5 +1,5 @@
 use isolang::Language;
-use oca_bundle::state::{
+use oca_bundle_semantics::state::{
     entries::EntriesElement, entry_codes::EntryCodes, oca::overlay,
     oca::OCABundle,
 };

@@ -1,7 +1,7 @@
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 use clap::{Arg, Command};
-use oca_bundle::state::validator;
+use oca_bundle_semantics::state::validator;
 use oca_parser_xls::xls_parser::{self};
 
 fn main() {
@@ -193,7 +193,7 @@ fn main() {
                     "ocafile" => {
                         for oca_bundle in &parsed_oca_bundles {
                             let ast = oca_bundle.to_ast();
-                            let ocafile = oca_file::ocafile::generate_from_ast(&ast);
+                            let ocafile = oca_file_semantics::ocafile::generate_from_ast(&ast);
                             println!("{ocafile}");
                         }
                     }

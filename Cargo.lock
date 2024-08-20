@@ -797,12 +797,13 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.1.0"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d530e1a18b1cb4c484e6e34556a0d948706958449fca0cab753d649f2bce3d1f"
+checksum = "93ead53efc7ea8ed3cfb0c79fc8023fbb782a5432b52830b6518941cebe6505c"
 dependencies = [
  "equivalent",
  "hashbrown 0.14.3",
+ "serde",
 ]
 
 [[package]]
@@ -969,16 +970,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "oca-ast"
-version = "0.4.5"
+name = "oca-ast-semantics"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33cb0a07c3f11a92b955de4310d97905aa07ca62c55cf634378d7666078a3d84"
+checksum = "1f695dde86095a2b5823e6e762b18dcbc74f54f768e11ebdb10af78659290a32"
 dependencies = [
  "env_logger",
  "indexmap 1.9.3",
  "log",
  "recursion",
- "said 0.3.0",
+ "said 0.4.1",
  "serde",
  "serde-wasm-bindgen",
  "serde_json",
@@ -989,10 +990,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "oca-bundle"
-version = "0.4.5"
+name = "oca-bundle-semantics"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cab75939a9dca546b7749ca03eaec2a46a6925560e425e2fd55d866677f02be"
+checksum = "0a36755dfd877f2c58a35884467cb3e4f6f13ce3e9ece346fb68372e2491a1a4"
 dependencies = [
  "cascade",
  "convert_case",
@@ -1003,11 +1004,11 @@ dependencies = [
  "isolang",
  "lazy_static",
  "linked-hash-map",
- "oca-ast",
+ "oca-ast-semantics",
  "paste",
  "piccolo",
  "regex",
- "said 0.3.0",
+ "said 0.4.1",
  "serde",
  "serde-value",
  "serde_json",
@@ -1018,22 +1019,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "oca-file"
-version = "0.4.5"
+name = "oca-file-semantics"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fd93b7225007789980b8f615b0cc8f988ec96258ea0c14059e5aacba830349a"
+checksum = "1e22da34649c323fd43cbc068742d93bd2c5fcd298e39119bb6737e6180047b1"
 dependencies = [
  "clap 4.4.12",
  "convert_case",
  "env_logger",
  "indexmap 1.9.3",
  "log",
- "oca-ast",
+ "oca-ast-semantics",
  "pest",
  "pest_derive",
  "pretty_assertions",
  "recursion",
- "said 0.3.0",
+ "said 0.4.1",
  "serde",
  "serde_json",
  "sled",
@@ -1047,9 +1048,9 @@ dependencies = [
  "calamine",
  "clap 3.2.25",
  "isolang",
- "oca-ast",
- "oca-bundle",
- "oca-file",
+ "oca-ast-semantics",
+ "oca-bundle-semantics",
+ "oca-file-semantics",
  "said 0.1.2",
  "semver",
  "serde",
@@ -1392,9 +1393,9 @@ checksum = "f98d2aa92eebf49b69786be48e4477826b256916e84a57ff2a4f21923b48eb4c"
 
 [[package]]
 name = "sad_macros"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6614340171cdb3eb6dca3a9ce208a7564b96b852ee1bd8537ee931e81b1df633"
+checksum = "02d74f6f559db762afc219c839817ecccfc378d3e281050b13acec9563367a31"
 dependencies = [
  "quote",
  "syn 2.0.46",
@@ -1417,15 +1418,16 @@ dependencies = [
 
 [[package]]
 name = "said"
-version = "0.3.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9327fb6fb60f0eb3d480fa80023e6214426d2c533ea0946d98389b8cd51df432"
+checksum = "10379812d1d27a4e2cf8857c73ca01178b14845a79a3e96070d87043c8f6e1a2"
 dependencies = [
  "base64 0.13.1",
  "blake2",
  "blake3 1.5.0",
  "cesrox",
  "clap 3.2.25",
+ "indexmap 2.4.0",
  "nom",
  "rmp-serde 0.15.5",
  "sad_macros",
@@ -1507,7 +1509,7 @@ version = "1.0.110"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fbd975230bada99c8bb618e0c365c2eefa219158d5c6c29610fd09ff1833257"
 dependencies = [
- "indexmap 2.1.0",
+ "indexmap 2.4.0",
  "itoa",
  "ryu",
  "serde",
@@ -1519,7 +1521,7 @@ version = "0.9.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1bf28c79a99f70ee1f1d83d10c875d2e70618417fda01ad1785e027579d9d38"
 dependencies = [
- "indexmap 2.1.0",
+ "indexmap 2.4.0",
  "itoa",
  "ryu",
  "serde",

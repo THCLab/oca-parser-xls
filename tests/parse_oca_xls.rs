@@ -1,5 +1,5 @@
 use isolang::Language;
-use oca_bundle::state::validator::Validator;
+use oca_bundle_semantics::state::validator::Validator;
 use oca_parser_xls::xls_parser::oca::parse;
 
 #[test]
