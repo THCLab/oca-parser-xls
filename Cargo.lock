@@ -1043,7 +1043,7 @@ dependencies = [
 
 [[package]]
 name = "oca-parser-xls"
-version = "3.0.0-rc.5"
+version = "3.0.0-rc.6"
 dependencies = [
  "calamine",
  "clap 3.2.25",
