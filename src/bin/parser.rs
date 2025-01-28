@@ -96,26 +96,9 @@ fn main() {
             let mut parsed_oca_bundles = vec![];
             let mut errors: Vec<String> = vec![];
 
-            for (i, p) in paths.iter().enumerate() {
+            for p in paths.iter() {
                 let path = p.to_string();
-                let form_layout_path: Option<&str> = if i == 0 {
-                    matches.value_of("form-layout")
-                } else {
-                    None
-                };
-                let credential_layout_path: Option<&str> = if i == 0 {
-                    matches.value_of("credential-layout")
-                } else {
-                    None
-                };
-
-                let result = xls_parser::oca::parse(
-                    path.clone(),
-                    false, // matches.is_present("default-form-layout"),
-                    form_layout_path,
-                    false, // matches.is_present("default-credential-layout"),
-                    credential_layout_path,
-                );
+                let result = xls_parser::oca::parse(path.clone());
 
                 if let Err(e) = result {
                     println!(

@@ -8,11 +8,7 @@ fn parse_oca_xls() {
         format!(
             "{}/tests/assets/oca_template.xlsx",
             env!("CARGO_MANIFEST_DIR")
-        ),
-        false,
-        None,
-        false,
-        None,
+        )
     );
 
     assert!(result.is_ok());

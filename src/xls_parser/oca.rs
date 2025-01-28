@@ -9,10 +9,8 @@ use oca_bundle_semantics::state::{
     oca::overlay::cardinality::Cardinalitys,
     oca::overlay::character_encoding::CharacterEncodings,
     oca::overlay::conformance::Conformances,
-    oca::overlay::credential_layout::CredentialLayouts,
     oca::overlay::entry::Entries,
     oca::overlay::entry_code::EntryCodes,
-    oca::overlay::form_layout::FormLayouts,
     oca::overlay::format::Formats,
     oca::overlay::information::Information,
     oca::overlay::label::Labels,
@@ -20,8 +18,6 @@ use oca_bundle_semantics::state::{
     oca::OCABox,
 };
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::prelude::*;
 
 pub struct ParsedResult {
     pub oca: OCABox,
@@ -32,34 +28,8 @@ const SUPPORTED_TEMPLATES: &str = "^1.0.0";
 
 const SAMPLE_TEMPLATE_MSG: &str = "Template file can be found here: https://github.com/THCLab/oca-parser-xls/blob/main/templates/template.xlsx";
 
-pub fn parse(
-    path: String,
-    default_form_layout: bool,
-    form_layout_path: Option<&str>,
-    default_credential_layout: bool,
-    credential_layout_path: Option<&str>,
-) -> Result<ParsedResult, Vec<std::string::String>> {
+pub fn parse(path: String) -> Result<ParsedResult, Vec<std::string::String>> {
     let mut errors: Vec<String> = vec![];
-    let mut form_layout = None;
-    let mut credential_layout = None;
-    if let Some(path) = form_layout_path {
-        let mut file = File::open(path).expect("Unable to open file");
-        let mut contents = String::new();
-
-        file.read_to_string(&mut contents)
-            .expect("Unable to read file");
-
-        form_layout = Some(contents);
-    }
-    if let Some(path) = credential_layout_path {
-        let mut file = File::open(path).expect("Unable to open file");
-        let mut contents = String::new();
-
-        file.read_to_string(&mut contents)
-            .expect("Unable to read file");
-
-        credential_layout = Some(contents);
-    }
     let mut workbook = open_workbook_auto(path).map_err(|_| {
         errors.push(
             "Provided file cannot be parsed. Check if file exists and format is XLS(X)".to_string(),
@@ -184,17 +154,6 @@ pub fn parse(
     let oca_range = (start, end);
 
     let mut oca = OCABox::new();
-
-    if let Some(layout) = form_layout {
-        oca.add_form_layout(layout);
-    } else if default_form_layout {
-        // oca.add_default_form_layout();
-    }
-    if let Some(layout) = credential_layout {
-        oca.add_credential_layout(layout);
-    } else if default_credential_layout {
-        // oca = oca.add_default_credential_layout();
-    }
 
     let mut classification = String::new();
     if let Some(classification_index) = column_indicies.get("CLASSIFICATION_INDEX") {
@@ -634,11 +593,7 @@ mod tests {
             format!(
                 "{}/tests/assets/oca_template.xlsx",
                 env!("CARGO_MANIFEST_DIR")
-            ),
-            false,
-            None,
-            false,
-            None,
+            )
         );
         assert!(result.is_ok());
         if let Ok(mut parsed) = result {
@@ -655,11 +610,7 @@ mod tests {
             format!(
                 "{}/tests/assets/oca_template.xls",
                 env!("CARGO_MANIFEST_DIR")
-            ),
-            false,
-            None,
-            false,
-            None,
+            )
         );
         assert!(result.is_ok());
 
@@ -677,11 +628,7 @@ mod tests {
             format!(
                 "{}/tests/assets/invalid_format.txt",
                 env!("CARGO_MANIFEST_DIR")
-            ),
-            false,
-            None,
-            false,
-            None,
+            )
         );
         assert!(result.is_err());
     }
