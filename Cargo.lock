@@ -971,14 +971,15 @@ dependencies = [
 
 [[package]]
 name = "oca-ast-semantics"
-version = "0.6.10"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85d283b37a6bd26c558c87af88bd636b5bafd11640fde822e58265d9a9548eca"
+checksum = "3774fec44eb550f6d49061b5c3511fbce8acc1063b4871130424b08e3034564f"
 dependencies = [
  "env_logger",
  "indexmap 1.9.3",
  "log",
  "recursion",
+ "regex",
  "said 0.4.1",
  "serde",
  "serde-wasm-bindgen",
@@ -991,9 +992,9 @@ dependencies = [
 
 [[package]]
 name = "oca-bundle-semantics"
-version = "0.6.10"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28bacef21d96acd8e02524748637b40ea93009a4d8424596f0dc8d0f52aa585a"
+checksum = "9756f0c176f4345af1f9b4a157cc46cc50867f2cf0b865dfd360daedce0b9256"
 dependencies = [
  "cascade",
  "convert_case",
@@ -1020,9 +1021,9 @@ dependencies = [
 
 [[package]]
 name = "oca-file-semantics"
-version = "0.6.10"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c03f16508754998b2c010d7f540af55ab7663f73acc8916bfbeb805f0dfd55d2"
+checksum = "61323a5e474f3cd2ea40b9dee8a304a831bdf8cfcf7e58a823e18814113bf1f8"
 dependencies = [
  "clap 4.4.12",
  "convert_case",
@@ -1300,9 +1301,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.10.2"
+version = "1.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "380b951a9c5e80ddfd6136919eef32310721aa4aacd4889a8d39124b026ab343"
+checksum = "b544ef1b4eac5dc2db33ea63606ae9ffcfac26c1416a2806ae0bf5f56b201191"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -1312,9 +1313,9 @@ dependencies = [
 
 [[package]]
 name = "regex-automata"
-version = "0.4.3"
+version = "0.4.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f804c7828047e88b2d32e2d7fe5a105da8ee3264f01902f796c8e067dc2483f"
+checksum = "809e8dc61f6de73b46c85f4c96486310fe304c434cfa43669d7b40f711150908"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -1323,9 +1324,9 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.8.2"
+version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
+checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
 name = "rmp"

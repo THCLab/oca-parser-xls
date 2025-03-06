@@ -255,7 +255,7 @@ pub fn generate(
     }
 
     for (i, o) in oca.overlays.iter().enumerate() {
-        if o.overlay_type().eq(&overlay::OverlayType::CharacterEncoding) {
+        if o.overlay_type().to_string().eq("CharacterEncoding") {
             sheet1
                 .set_column(
                     (i + 4 - skipped).try_into().unwrap(),
@@ -311,7 +311,7 @@ pub fn generate(
                         })?;
                 }
             }
-        } else if o.overlay_type().eq(&overlay::OverlayType::Cardinality) {
+        } else if o.overlay_type().to_string().eq("Cardinality") {
             sheet1
                 .set_column(
                     (i + 4 - skipped).try_into().unwrap(),
@@ -361,7 +361,7 @@ pub fn generate(
                         errors.clone()
                     })?;
             }
-        } else if o.overlay_type().eq(&overlay::OverlayType::Conformance) {
+        } else if o.overlay_type().to_string().eq("Conformance") {
             sheet1
                 .set_column(
                     (i + 4 - skipped).try_into().unwrap(),
@@ -411,7 +411,7 @@ pub fn generate(
                         errors.clone()
                     })?;
             }
-        } else if o.overlay_type().eq(&overlay::OverlayType::Conditional) {
+        } else if o.overlay_type().to_string().eq("Conditional") {
             sheet1
                 .set_column(
                     (i + 4 - skipped).try_into().unwrap(),
@@ -508,7 +508,7 @@ pub fn generate(
             }
 
             skipped -= 1;
-        } else if o.overlay_type().eq(&overlay::OverlayType::Format) {
+        } else if o.overlay_type().to_string().eq("Format") {
             sheet1
                 .set_column(
                     (i + 4 - skipped).try_into().unwrap(),
@@ -592,7 +592,7 @@ pub fn generate(
                     }
                 }
             }
-        } else if o.overlay_type().eq(&overlay::OverlayType::EntryCode) {
+        } else if o.overlay_type().to_string().eq("EntryCode") {
             sheet1
                 .write_string(
                     0,
@@ -633,7 +633,7 @@ pub fn generate(
                         })?;
                 }
             }
-        } else if o.overlay_type().eq(&overlay::OverlayType::Label) {
+        } else if o.overlay_type().to_string().eq("Label") {
             if lang.is_none() {
                 lang = o.language()
             }
@@ -704,7 +704,7 @@ pub fn generate(
             } else {
                 skipped += 1;
             }
-        } else if o.overlay_type().eq(&overlay::OverlayType::Entry) {
+        } else if o.overlay_type().to_string().eq("Entry") {
             if lang.is_none() {
                 lang = o.language()
             }
@@ -771,7 +771,7 @@ pub fn generate(
             } else {
                 skipped += 1;
             }
-        } else if o.overlay_type().eq(&overlay::OverlayType::Information) {
+        } else if o.overlay_type().to_string().eq("Information") {
             if lang.is_none() {
                 lang = o.language()
             }
